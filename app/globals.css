@@ -1,0 +1,314 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0b;
+  --foreground: #f5f5f7;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Liquid-glass / glassmorphism primitives                                */
+/* ---------------------------------------------------------------------- */
+
+@layer components {
+  /* Dark liquid-glass surface used for the nav bar: a darker center fill
+     with brighter, lit edges (the opposite of a flat frosted tint), plus
+     a small glare highlight and a thin top catch-light so it reads as a
+     curved physical pane rather than a tinted rectangle. The plain blur
+     below is the safe baseline that ships to every browser; the
+     SVG-distortion enhancement (real optical refraction) is added
+     further down inside an `@supports` query so it only ever applies
+     where the browser can actually parse it — see that block for why. */
+  .glass-nav {
+    position: relative;
+    background: radial-gradient(
+          55% 70% at 20% 12%,
+          rgba(255, 255, 255, 0.24),
+          transparent 62%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 24%),
+        radial-gradient(
+          150% 150% at 50% 50%,
+          transparent 52%,
+          rgba(255, 255, 255, 0.09) 100%
+        ),
+        radial-gradient(
+          120% 140% at 105% 120%,
+          rgba(120, 150, 255, 0.12),
+          transparent 55%
+        ),
+        rgba(8, 8, 11, 0.62);
+    backdrop-filter: blur(38px) saturate(220%) contrast(1.2) brightness(0.97);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      inset 1px 0 0 rgba(255, 255, 255, 0.1),
+      inset -1px 0 0 rgba(0, 0, 0, 0.18),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 4px 14px -4px rgba(0, 0, 0, 0.5), 0 18px 48px -14px rgba(0, 0, 0, 0.65);
+  }
+
+  /* Solid liquid-glass sheet for the mobile nav dropdown. Same family as
+     .glass-nav, but deliberately heavier: a much darker, denser fill
+     (0.88 vs. 0.62 alpha) so link text stays readable over bright or busy
+     daily photos, plus a stronger blur and a firmer shadow so the panel
+     reads as an opaque-feeling sheet of glass rather than a transparent
+     overlay. Kept as its own class — not a `.glass-nav` edit — so the
+     desktop center pill (which shares `.glass-nav`) stays exactly as
+     light/translucent as before. */
+  .glass-sheet {
+    position: relative;
+    background: radial-gradient(
+          55% 70% at 18% 10%,
+          rgba(255, 255, 255, 0.16),
+          transparent 58%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 22%),
+        radial-gradient(
+          150% 150% at 50% 50%,
+          transparent 40%,
+          rgba(255, 255, 255, 0.05) 100%
+        ),
+        rgba(5, 5, 8, 0.91);
+    backdrop-filter: blur(46px) saturate(190%) contrast(1.25) brightness(0.9);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+      inset 1px 0 0 rgba(255, 255, 255, 0.07),
+      inset -1px 0 0 rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 10px 28px -8px rgba(0, 0, 0, 0.65), 0 32px 76px -18px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Compact brand badge ("CHRIS AUTOMATES", top-left). Same physical-glass
+     treatment as .glass-nav, scaled down, but deliberately given a much
+     denser fill (0.88 vs. 0.64 alpha) and a stronger brightness dip —
+     same reasoning as .glass-sheet's heavier fill vs. .glass-nav: this is
+     a small, single-line wordmark with no room to lose contrast, and it
+     has to stay legible against the brightest daily backdrop photos
+     (sunsets, sand, snow), not just the average one. */
+  .glass-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    background: radial-gradient(
+          65% 85% at 18% 10%,
+          rgba(255, 255, 255, 0.16),
+          transparent 65%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 30%),
+        rgba(6, 6, 9, 0.88);
+    backdrop-filter: blur(26px) saturate(200%) contrast(1.2) brightness(0.88);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 3px 10px -3px rgba(0, 0, 0, 0.6);
+    transition: border-color 250ms ease;
+  }
+
+  .glass-badge:hover {
+    border-color: rgba(255, 255, 255, 0.36);
+  }
+
+  /* Floating glass panels (What I Do, Featured Work, Projects, Contact).
+     Same dark-liquid-glass treatment as .glass-nav: darker center fill,
+     a lit-edge vignette ring, and a soft glare so the panel reads as a
+     material layer sitting above the photo, not a tinted rectangle. */
+  .glass-panel {
+    position: relative;
+    background: radial-gradient(
+          48% 58% at 16% 10%,
+          rgba(255, 255, 255, 0.26),
+          transparent 64%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.15), transparent 28%),
+        radial-gradient(
+          155% 155% at 50% 50%,
+          transparent 50%,
+          rgba(255, 255, 255, 0.09) 100%
+        ),
+        radial-gradient(
+          120% 140% at 100% 115%,
+          rgba(120, 150, 255, 0.12),
+          transparent 55%
+        ),
+        rgba(8, 8, 11, 0.6);
+    backdrop-filter: blur(42px) saturate(220%) contrast(1.22) brightness(0.96);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.38),
+      inset 1px 0 0 rgba(255, 255, 255, 0.09),
+      inset -1px 0 0 rgba(0, 0, 0, 0.2),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 6px 18px -6px rgba(0, 0, 0, 0.5), 0 24px 60px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .glass-panel-hover {
+    transition: transform 300ms ease, border-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  .glass-panel-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.38);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.36),
+      inset 1px 0 0 rgba(255, 255, 255, 0.1),
+      inset -1px 0 0 rgba(0, 0, 0, 0.2),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+      0 10px 26px -8px rgba(0, 0, 0, 0.55),
+      0 30px 70px -16px rgba(0, 0, 0, 0.68);
+  }
+
+  /* Light/white liquid-glass surface — the same physical-glass recipe as
+     .glass-nav (radial sheen, backdrop-filter, layered inset shadows),
+     but for the site's white CTAs (View Work, GitHub) instead of its dark
+     chrome. The fill is bright and high-opacity so black label text stays
+     legible, the highlight/shadow relationship is inverted (bright top
+     sheen, soft shadow underneath, the way a lit piece of light-toned
+     glass actually reads), and backdrop-filter brightness pushes above 1
+     instead of .glass-nav's deliberate dip below it. */
+  .glass-light {
+    position: relative;
+    background: radial-gradient(
+          60% 75% at 22% 14%,
+          rgba(255, 255, 255, 0.95),
+          transparent 65%
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent 32%),
+        radial-gradient(
+          140% 140% at 50% 100%,
+          rgba(0, 0, 0, 0.08),
+          transparent 60%
+        ),
+        rgba(248, 248, 250, 0.84);
+    backdrop-filter: blur(28px) saturate(180%) contrast(1.05) brightness(1.12);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+      inset 1px 0 0 rgba(255, 255, 255, 0.3),
+      inset -1px 0 0 rgba(0, 0, 0, 0.06),
+      0 3px 10px -3px rgba(0, 0, 0, 0.3), 0 16px 36px -14px rgba(0, 0, 0, 0.38);
+    transition: border-color 250ms ease, opacity 250ms ease;
+  }
+
+  .glass-light:hover {
+    border-color: rgba(255, 255, 255, 0.85);
+    opacity: 0.92;
+  }
+
+  /* Understated underline-on-hover for text links */
+  .link-underline {
+    position: relative;
+    text-decoration: none;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+    transition: width 250ms ease;
+  }
+
+  .link-underline:hover::after {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Optical refraction enhancement                                         */
+/*                                                                         */
+/* Gated behind a feature query instead of a second same-property         */
+/* declaration: build-time CSS minifiers (Lightning CSS, used by          */
+/* Next.js/Tailwind v4) will deduplicate two `backdrop-filter`            */
+/* declarations on the same selector and can drop both, which silently    */
+/* deletes the safe fallback too. `@supports` is a real conditional and   */
+/* survives minification untouched, and — being outside any `@layer` —   */
+/* it always wins the cascade over the layered base rule above when the  */
+/* condition is true, with zero effect when it's false.                   */
+/* ---------------------------------------------------------------------- */
+
+@supports (backdrop-filter: url(#liquid-glass-distortion)) {
+  .glass-nav {
+    backdrop-filter: url(#liquid-glass-distortion) blur(38px) saturate(220%)
+      contrast(1.2) brightness(0.97);
+  }
+
+  .glass-sheet {
+    backdrop-filter: url(#liquid-glass-distortion) blur(46px) saturate(190%)
+      contrast(1.25) brightness(0.9);
+  }
+
+  .glass-panel {
+    backdrop-filter: url(#liquid-glass-distortion) blur(42px) saturate(220%)
+      contrast(1.22) brightness(0.96);
+  }
+
+  .glass-badge {
+    backdrop-filter: url(#liquid-glass-distortion) blur(26px) saturate(200%)
+      contrast(1.2) brightness(0.88);
+  }
+
+  .glass-light {
+    backdrop-filter: url(#liquid-glass-distortion) blur(28px) saturate(180%)
+      contrast(1.05) brightness(1.12);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion — kept minimal and purposeful                                   */
+/* ---------------------------------------------------------------------- */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 700ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up {
+    animation: none;
+  }
+}
