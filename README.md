@@ -1,6 +1,6 @@
-# Chris Automates
+# Portfolio Site Template
 
-Custom portfolio site for chrisautomates.com — Next.js 16 (App Router), TypeScript, Tailwind CSS v4, deployed on Vercel.
+A custom, code-first portfolio site — Next.js 16 (App Router), TypeScript, Tailwind CSS v4, deployed on Vercel. There's no CMS or database: every piece of content (copy, projects, photos) lives directly in the source files, so customizing it for yourself just means editing files and redeploying.
 
 ## Getting started
 
@@ -19,7 +19,7 @@ npm run lint    # eslint
 
 ## What's already wired up
 
-- **Daily background system** — `lib/backdrops.ts` holds 11 real travel photos (Doha, Muscat, four spots in Switzerland, Singapore, Paris, Lisse, Riyadh, Jeddah), each cropped into a dedicated desktop (16:9) and mobile (9:16) file in `public/backdrops/`. `getTodayBackdrop()` picks one deterministically via day-of-year modulo image count — no database, same photo for every visitor for 24 hours. The homepage (`app/page.tsx`) revalidates every 30 minutes (`export const revalidate = 1800`) so the backdrop rotates without a redeploy.
+- **Daily background system** — `lib/backdrops.ts` holds an array of photos, each cropped into a dedicated desktop (16:9) and mobile (9:16) file in `public/backdrops/`. `getTodayBackdrop()` picks one deterministically via day-of-year modulo image count — no database, same photo for every visitor for 24 hours. The homepage (`app/page.tsx`) revalidates every 30 minutes (`export const revalidate = 1800`) so the backdrop rotates without a redeploy.
 - **Pages** — Home (`/`), About (`/about`), Projects (`/projects`), Writing (`/writing`), Contact (`/contact`).
 - **Components** — `Navbar` (liquid-glass, mobile menu), `DailyBackground` + `DailyCaption`, `Hero`, `WhatIDo`, `FeaturedWork`, `Footer`.
 - **Glass styling** — utility classes `.glass-nav` / `.glass-panel` / `.glass-panel-hover` in `app/globals.css`.
@@ -54,15 +54,21 @@ Quick map of "I want to change X" → the file to open. There's no CMS or databa
 
 ## Before you launch — replace these placeholders
 
+This repo ships with sample content. Before deploying it as your own site, replace:
+
 | What | Where | Notes |
 |---|---|---|
-| Resume PDF | `public/resume.pdf` | Done — your real resume is wired in. |
-| GitHub URL | `lib/site.ts` → `github` | Done — set to `https://github.com/virtuarch`. |
-| LinkedIn URL | `lib/site.ts` → `linkedin` | Done — set as a secondary link, not a CTA, per the brief. |
+| Site name, title, meta description | `lib/site.ts` → `site` object | Your name/brand and a one-line description. |
+| Email | `lib/site.ts` → `site.email` | Your contact address. |
+| GitHub URL | `lib/site.ts` → `site.github` | Your GitHub profile or org URL. |
+| LinkedIn URL | `lib/site.ts` → `site.linkedin` | Optional — rendered as a secondary link, not a CTA. Remove if you don't want it shown. |
+| Resume PDF | `public/resume.pdf` | Replace with your own résumé (keep the filename, or update `resumeHref` in `lib/site.ts` if you rename it). |
+| Hero name, role line, bio | `components/Hero.tsx` | Replace with your own. |
+| Daily background photos | `lib/backdrops.ts` + `public/backdrops/` | Replace with your own photos — see "Adding a new daily backdrop" below. |
+| Featured Work projects | `lib/projects.ts` | Replace with your own projects. |
+| About page content | `app/about/page.tsx` | Replace bio, education, certifications, and experience with your own. |
 
-Everything else (email, bio, education, certifications, project descriptions) is already filled in with the content you provided.
-
-Note: the original, uncropped source photos and resume master files (docx) that were used to produce the assets in `public/` have been removed from the repo to keep it lean — `public/backdrops/`, `public/projects/`, and `public/resume.pdf` are the only copies now. Keep your own backups of those originals outside this repo if you want them for future re-cropping or edits.
+Tip: keep your original, uncropped source photos and any resume master files outside this repo (e.g. a personal backup folder) — only the cropped/exported versions need to live in `public/`.
 
 ## Adding a new daily backdrop
 
@@ -85,8 +91,8 @@ The rotation automatically includes it (day-of-year % array length).
 
 1. Push this folder to a GitHub repo.
 2. Import the repo on [Vercel](https://vercel.com/new) — it auto-detects Next.js, no config needed.
-3. In Hostinger DNS, point `chrisautomates.com` at Vercel: add the `A`/`CNAME` records Vercel gives you on the project's Domains settings page.
-4. Set `chris@chrisautomates.com` as the contact address — already wired into `lib/site.ts`.
+3. Point your domain at Vercel through your DNS provider: add the `A`/`CNAME` records Vercel gives you on the project's Domains settings page.
+4. Set your contact email and other site details in `lib/site.ts` — already wired into the Contact page and footer.
 
 ## Notes
 
